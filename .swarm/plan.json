@@ -1,0 +1,582 @@
+{
+  "schema_version": "1.0.0",
+  "title": "OpenCode Newsroom Plugin",
+  "swarm": "local",
+  "current_phase": 1,
+  "phases": [
+    {
+      "id": 1,
+      "name": "Scaffolding & Config",
+      "status": "pending",
+      "tasks": [
+        {
+          "id": "1.1",
+          "phase": 1,
+          "status": "pending",
+          "size": "small",
+          "description": "Create package.json, tsconfig.json, biome.json",
+          "depends": [],
+          "files_touched": []
+        },
+        {
+          "id": "1.2",
+          "phase": 1,
+          "status": "pending",
+          "size": "small",
+          "description": "Create config/schema.ts",
+          "depends": [],
+          "files_touched": []
+        },
+        {
+          "id": "1.3",
+          "phase": 1,
+          "status": "pending",
+          "size": "small",
+          "description": "Create config/constants.ts",
+          "depends": [],
+          "files_touched": []
+        },
+        {
+          "id": "1.4",
+          "phase": 1,
+          "status": "pending",
+          "size": "small",
+          "description": "Create config/defaults.ts",
+          "depends": [],
+          "files_touched": []
+        },
+        {
+          "id": "1.5",
+          "phase": 1,
+          "status": "pending",
+          "size": "small",
+          "description": "Create config/loader.ts",
+          "depends": [],
+          "files_touched": []
+        },
+        {
+          "id": "1.6",
+          "phase": 1,
+          "status": "pending",
+          "size": "small",
+          "description": "Create config/index.ts",
+          "depends": [],
+          "files_touched": []
+        },
+        {
+          "id": "1.7",
+          "phase": 1,
+          "status": "pending",
+          "size": "small",
+          "description": "Create utils/errors.ts and utils/logger.ts and utils/index.ts",
+          "depends": [],
+          "files_touched": []
+        },
+        {
+          "id": "1.8",
+          "phase": 1,
+          "status": "pending",
+          "size": "small",
+          "description": "Run bun install and verify",
+          "depends": [],
+          "files_touched": []
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "Agent System",
+      "status": "pending",
+      "tasks": [
+        {
+          "id": "2.1",
+          "phase": 2,
+          "status": "pending",
+          "size": "small",
+          "description": "Create agents/editor",
+          "depends": [],
+          "files_touched": []
+        },
+        {
+          "id": "2.2",
+          "phase": 2,
+          "status": "pending",
+          "size": "small",
+          "description": "Create agents/researcher.ts",
+          "depends": [],
+          "files_touched": []
+        },
+        {
+          "id": "2.3",
+          "phase": 2,
+          "status": "pending",
+          "size": "small",
+          "description": "Create agents/sme.ts",
+          "depends": [],
+          "files_touched": []
+        },
+        {
+          "id": "2.4",
+          "phase": 2,
+          "status": "pending",
+          "size": "small",
+          "description": "Create agents/writer.ts",
+          "depends": [],
+          "files_touched": []
+        },
+        {
+          "id": "2.5",
+          "phase": 2,
+          "status": "pending",
+          "size": "small",
+          "description": "Create agents/copy",
+          "depends": [],
+          "files_touched": []
+        },
+        {
+          "id": "2.6",
+          "phase": 2,
+          "status": "pending",
+          "size": "small",
+          "description": "Create agents/managing",
+          "depends": [],
+          "files_touched": []
+        },
+        {
+          "id": "2.7",
+          "phase": 2,
+          "status": "pending",
+          "size": "small",
+          "description": "Create agents/fact",
+          "depends": [],
+          "files_touched": []
+        },
+        {
+          "id": "2.8",
+          "phase": 2,
+          "status": "pending",
+          "size": "small",
+          "description": "Create agents/humanizer.ts",
+          "depends": [],
+          "files_touched": []
+        },
+        {
+          "id": "2.9",
+          "phase": 2,
+          "status": "pending",
+          "size": "small",
+          "description": "Create agents/index.ts",
+          "depends": [],
+          "files_touched": []
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "name": "State Management",
+      "status": "pending",
+      "tasks": [
+        {
+          "id": "3.1",
+          "phase": 3,
+          "status": "pending",
+          "size": "small",
+          "description": "Create config/plan",
+          "depends": [],
+          "files_touched": []
+        },
+        {
+          "id": "3.2",
+          "phase": 3,
+          "status": "pending",
+          "size": "small",
+          "description": "Create config/evidence",
+          "depends": [],
+          "files_touched": []
+        },
+        {
+          "id": "3.3",
+          "phase": 3,
+          "status": "pending",
+          "size": "small",
+          "description": "Create state.ts",
+          "depends": [],
+          "files_touched": []
+        },
+        {
+          "id": "3.4",
+          "phase": 3,
+          "status": "pending",
+          "size": "small",
+          "description": "Create plan/manager.ts",
+          "depends": [],
+          "files_touched": []
+        },
+        {
+          "id": "3.5",
+          "phase": 3,
+          "status": "pending",
+          "size": "small",
+          "description": "Create evidence/manager.ts",
+          "depends": [],
+          "files_touched": []
+        },
+        {
+          "id": "3.6",
+          "phase": 3,
+          "status": "pending",
+          "size": "small",
+          "description": "Create hooks/utils.ts",
+          "depends": [],
+          "files_touched": []
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "name": "Guardrails & Hooks",
+      "status": "pending",
+      "tasks": [
+        {
+          "id": "4.1",
+          "phase": 4,
+          "status": "pending",
+          "size": "small",
+          "description": "Create hooks/guardrails.ts",
+          "depends": [],
+          "files_touched": []
+        },
+        {
+          "id": "4.2",
+          "phase": 4,
+          "status": "pending",
+          "size": "small",
+          "description": "Create hooks/system",
+          "depends": [],
+          "files_touched": []
+        },
+        {
+          "id": "4.3",
+          "phase": 4,
+          "status": "pending",
+          "size": "small",
+          "description": "Create hooks/extractors.ts",
+          "depends": [],
+          "files_touched": []
+        },
+        {
+          "id": "4.4",
+          "phase": 4,
+          "status": "pending",
+          "size": "small",
+          "description": "Create hooks/agent",
+          "depends": [],
+          "files_touched": []
+        },
+        {
+          "id": "4.5",
+          "phase": 4,
+          "status": "pending",
+          "size": "small",
+          "description": "Create hooks/delegation",
+          "depends": [],
+          "files_touched": []
+        },
+        {
+          "id": "4.6",
+          "phase": 4,
+          "status": "pending",
+          "size": "small",
+          "description": "Create hooks/pipeline",
+          "depends": [],
+          "files_touched": []
+        },
+        {
+          "id": "4.7",
+          "phase": 4,
+          "status": "pending",
+          "size": "small",
+          "description": "Create hooks/compaction",
+          "depends": [],
+          "files_touched": []
+        },
+        {
+          "id": "4.8",
+          "phase": 4,
+          "status": "pending",
+          "size": "small",
+          "description": "Create hooks/context",
+          "depends": [],
+          "files_touched": []
+        },
+        {
+          "id": "4.9",
+          "phase": 4,
+          "status": "pending",
+          "size": "small",
+          "description": "Create hooks/index.ts",
+          "depends": [],
+          "files_touched": []
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "name": "Commands",
+      "status": "pending",
+      "tasks": [
+        {
+          "id": "5.1",
+          "phase": 5,
+          "status": "pending",
+          "size": "medium",
+          "description": "Create commands/status.ts",
+          "depends": [
+            "3.4"
+          ],
+          "files_touched": []
+        },
+        {
+          "id": "5.2",
+          "phase": 5,
+          "status": "pending",
+          "size": "medium",
+          "description": "Create commands/plan.ts",
+          "depends": [],
+          "files_touched": []
+        },
+        {
+          "id": "5.3",
+          "phase": 5,
+          "status": "pending",
+          "size": "small",
+          "description": "Create commands/agents.ts",
+          "depends": [],
+          "files_touched": []
+        },
+        {
+          "id": "5.4",
+          "phase": 5,
+          "status": "pending",
+          "size": "small",
+          "description": "Create commands/history.ts",
+          "depends": [],
+          "files_touched": []
+        },
+        {
+          "id": "5.5",
+          "phase": 5,
+          "status": "pending",
+          "size": "small",
+          "description": "Create commands/config.ts",
+          "depends": [],
+          "files_touched": []
+        },
+        {
+          "id": "5.6",
+          "phase": 5,
+          "status": "pending",
+          "size": "medium",
+          "description": "Create commands/diagnose.ts",
+          "depends": [],
+          "files_touched": []
+        },
+        {
+          "id": "5.7",
+          "phase": 5,
+          "status": "pending",
+          "size": "small",
+          "description": "Create commands/export.ts",
+          "depends": [],
+          "files_touched": []
+        },
+        {
+          "id": "5.8",
+          "phase": 5,
+          "status": "pending",
+          "size": "small",
+          "description": "Create commands/reset.ts",
+          "depends": [],
+          "files_touched": []
+        },
+        {
+          "id": "5.9",
+          "phase": 5,
+          "status": "pending",
+          "size": "small",
+          "description": "Create commands/evidence.ts",
+          "depends": [],
+          "files_touched": []
+        },
+        {
+          "id": "5.10",
+          "phase": 5,
+          "status": "pending",
+          "size": "medium",
+          "description": "Create commands/archive.ts",
+          "depends": [],
+          "files_touched": []
+        },
+        {
+          "id": "5.11",
+          "phase": 5,
+          "status": "pending",
+          "size": "small",
+          "description": "Create commands/index.ts",
+          "depends": [],
+          "files_touched": []
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "name": "Tools & Plugin Entry",
+      "status": "pending",
+      "tasks": [
+        {
+          "id": "6.1",
+          "phase": 6,
+          "status": "pending",
+          "size": "small",
+          "description": "Create tools/domain",
+          "depends": [],
+          "files_touched": []
+        },
+        {
+          "id": "6.2",
+          "phase": 6,
+          "status": "pending",
+          "size": "medium",
+          "description": "Create tools/gitingest.ts",
+          "depends": [],
+          "files_touched": []
+        },
+        {
+          "id": "6.3",
+          "phase": 6,
+          "status": "pending",
+          "size": "small",
+          "description": "Create tools/file",
+          "depends": [],
+          "files_touched": []
+        },
+        {
+          "id": "6.4",
+          "phase": 6,
+          "status": "pending",
+          "size": "small",
+          "description": "Create tools/index.ts",
+          "depends": [],
+          "files_touched": []
+        },
+        {
+          "id": "6.5",
+          "phase": 6,
+          "status": "pending",
+          "size": "small",
+          "description": "Create src/index.ts",
+          "depends": [],
+          "files_touched": []
+        },
+        {
+          "id": "6.6",
+          "phase": 6,
+          "status": "pending",
+          "size": "small",
+          "description": "Build and verify dist/index.js produced",
+          "depends": [],
+          "files_touched": []
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "name": "CLI",
+      "status": "pending",
+      "tasks": [
+        {
+          "id": "7.1",
+          "phase": 7,
+          "status": "pending",
+          "size": "small",
+          "description": "Create cli/index.ts",
+          "depends": [],
+          "files_touched": []
+        },
+        {
+          "id": "7.2",
+          "phase": 7,
+          "status": "pending",
+          "size": "small",
+          "description": "Update package.json bin field",
+          "depends": [],
+          "files_touched": []
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "name": "Tests",
+      "status": "pending",
+      "tasks": [
+        {
+          "id": "8.1",
+          "phase": 8,
+          "status": "pending",
+          "size": "large",
+          "description": "Create tests/unit/config/ tests",
+          "depends": [
+            "6.6"
+          ],
+          "files_touched": []
+        },
+        {
+          "id": "8.2",
+          "phase": 8,
+          "status": "pending",
+          "size": "large",
+          "description": "Create tests/unit/agents/ tests",
+          "depends": [],
+          "files_touched": []
+        },
+        {
+          "id": "8.3",
+          "phase": 8,
+          "status": "pending",
+          "size": "large",
+          "description": "Create tests/unit/state/ tests",
+          "depends": [],
+          "files_touched": []
+        },
+        {
+          "id": "8.4",
+          "phase": 8,
+          "status": "pending",
+          "size": "medium",
+          "description": "Create tests/unit/guardrails/ tests",
+          "depends": [],
+          "files_touched": []
+        },
+        {
+          "id": "8.5",
+          "phase": 8,
+          "status": "pending",
+          "size": "medium",
+          "description": "Create tests/unit/commands/ tests",
+          "depends": [],
+          "files_touched": []
+        },
+        {
+          "id": "8.6",
+          "phase": 8,
+          "status": "pending",
+          "size": "medium",
+          "description": "Run full test suite and fix failures",
+          "depends": [],
+          "files_touched": []
+        }
+      ]
+    }
+  ],
+  "migration_status": "migrated"
+}

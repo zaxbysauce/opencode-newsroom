@@ -51,14 +51,11 @@ Target: C:\opencode\opencode-newsroom\src\
 
 | Tool | Calls | Success | Failed | Avg Duration |
 |------|-------|---------|--------|--------------|
-| read | 1464 | 1464 | 0 | 7ms |
-| bash | 490 | 490 | 0 | 1553ms |
-| edit | 390 | 390 | 0 | 475ms |
-| glob | 229 | 229 | 0 | 7240ms |
-| task | 189 | 189 | 0 | 163440ms |
-| write | 177 | 177 | 0 | 288ms |
-| todowrite | 110 | 110 | 0 | 4ms |
-| grep | 105 | 105 | 0 | 84ms |
-| apply_patch | 54 | 54 | 0 | 42ms |
-| memory_set | 4 | 4 | 0 | 4ms |
-| detect_domains | 1 | 1 | 0 | 1ms |
+| read | 13 | 13 | 0 | 11ms |
+| bash | 13 | 13 | 0 | 384ms |
+| glob | 7 | 7 | 0 | 319ms |
+| todowrite | 3 | 3 | 0 | 2ms |
+| google_search | 1 | 1 | 0 | 98ms |
+| task | 1 | 1 | 0 | 15786ms |
+| webfetch | 1 | 1 | 0 | 232ms |
+| write | 1 | 1 | 0 | 108ms |

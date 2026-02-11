@@ -1,0 +1,46 @@
+{
+  "qa_retry_limit": 5,
+  "inject_phase_reminders": true,
+  "newsrooms": {
+    "mega": {
+      "name": "Mega",
+      "agents": {
+        "editor_in_chief": { "model": "opencode/gpt-5-nano" },
+        "writer": { "model": "kimi-for-coding/k2p5" },
+        "researcher": { "model": "github-copilot/gemini-3-flash-preview" },
+        "sme": { "model": "zai-coding-plan/glm-4.7" },
+        "managing_editor": { "model": "kimi-for-coding/k2p5" },
+        "copy_editor": { "model": "minimax-coding-plan/MiniMax-M2.1" },
+        "fact_checker": { "model": "zai-coding-plan/glm-4.7" },
+        "humanizer": { "model": "zai-coding-plan/glm-4.7" }
+      }
+    },
+    "paid": {
+      "name": "Paid",
+      "agents": {
+        "editor_in_chief": { "model": "opencode/gpt-5-nano" },
+        "writer": { "model": "zai-coding-plan/glm-4.7" },
+        "researcher": { "model": "zai-coding-plan/glm-4.7-flash" },
+        "sme": { "model": "nvidia/openai/gpt-oss-120b" },
+        "managing_editor": { "model": "nvidia/openai/gpt-oss-120b" },
+        "copy_editor": { "model": "kimi-for-coding/kimi-k2-thinking" },
+        "fact_checker": { "model": "minimax-coding-plan/MiniMax-M2" },
+        "humanizer": { "model": "minimax-coding-plan/MiniMax-M2" }
+      }
+    },
+    "local": {
+      "name": "Local",
+      "agents": {
+        "editor_in_chief": { "model": "ollama/qwen2.5:32b" },
+        "writer": { "model": "VSAN2/z.ai/GLM-Flash-4.7" },
+        "researcher": { "model": "google/gemini-2.5-flash" },
+        "sme": { "model": "VSAN/openai/gpt-oss-20b" },
+        "managing_editor": { "model": "VSAN/openai/gpt-oss-20b" },
+        "copy_editor": { "model": "minimax-coding-plan/MiniMax-M2" },
+        "fact_checker": { "model": "VSAN2/z.ai/GLM-Flash-4.7" },
+        "humanizer": { "model": "minimax-coding-plan/MiniMax-M2" }
+      }
+    }
+  },
+  "max_iterations": 5
+}

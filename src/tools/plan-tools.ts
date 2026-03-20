@@ -9,6 +9,8 @@
  * Adapted from opencode-swarm plan tools for editorial workflow.
  */
 
+import { mkdirSync } from 'node:fs';
+import * as path from 'node:path';
 import { type ToolDefinition, tool } from '@opencode-ai/plugin/tool';
 import { loadPlan, savePlan, updateTaskStatus } from '../plan/manager';
 
@@ -98,7 +100,7 @@ export function createPhaseCompleteTool(directory: string): ToolDefinition {
 					}
 				}
 
-				// Advance current_phase if needed
+				// Advance current_phase to the next incomplete phase
 				if (plan.current_phase === args.phase_id) {
 					const nextPhase = plan.phases.find(
 						(p) => p.id === args.phase_id + 1,
@@ -106,13 +108,13 @@ export function createPhaseCompleteTool(directory: string): ToolDefinition {
 					if (nextPhase) {
 						plan.current_phase = nextPhase.id;
 					}
+					// If no next phase exists, current_phase remains at the last completed phase
+					// — this is intentional; the plan is done and phase.status === 'complete' signals completion
 				}
 
 				await savePlan(directory, plan);
 
 				// Append lessons to context.md
-				const { mkdirSync } = await import('node:fs');
-				const path = await import('node:path');
 				const newsroomDir = path.resolve(directory, '.newsroom');
 				mkdirSync(newsroomDir, { recursive: true });
 
@@ -129,8 +131,12 @@ export function createPhaseCompleteTool(directory: string): ToolDefinition {
 					await Bun.write(contextPath, `# Newsroom Context\n${lessonsEntry}`);
 				}
 
+				const isLastPhase = !plan.phases.find((p) => p.id === args.phase_id + 1);
+				const completionNote = isLastPhase
+					? ' All phases complete — editorial pipeline finished.'
+					: '';
 				const summaryText = args.summary ? `\n\nSummary: ${args.summary}` : '';
-				return `✅ Phase ${args.phase_id} marked complete. Lessons saved to .newsroom/context.md.${summaryText}`;
+				return `✅ Phase ${args.phase_id} marked complete. Lessons saved to .newsroom/context.md.${completionNote}${summaryText}`;
 			} catch (error) {
 				return `Failed to complete phase: ${error instanceof Error ? error.message : String(error)}`;
 			}

@@ -236,7 +236,6 @@ export async function migrateFromContextMd(
 
 	// Check sentinel
 	try {
-		Bun.file(sentinelPath);
 		const sentinel = await Bun.file(sentinelPath).text();
 		if (sentinel.trim().length > 0) {
 			return { migrated: 0, skipped: true };

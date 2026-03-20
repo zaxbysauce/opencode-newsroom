@@ -13,8 +13,6 @@ import { warn } from '../utils';
 // Summary ID must be S followed by 1-6 digits (e.g. S1, S99, S123456)
 const SUMMARY_ID_REGEX = /^S\d{1,6}$/;
 
-// Safe filename pattern — no path separators, traversal, or control chars
-const SAFE_FILENAME_REGEX = /^[A-Za-z0-9_-]{1,64}$/;
 
 export interface SummaryMetadata {
 	id: string;
@@ -57,15 +55,6 @@ export function validateSummaryId(id: string): string {
 	return id;
 }
 
-/**
- * Validates that a filename is safe for storage (no path traversal, only safe chars).
- */
-function validateFilename(filename: string): string {
-	if (!SAFE_FILENAME_REGEX.test(filename)) {
-		throw new Error(`Unsafe filename: "${filename}"`);
-	}
-	return filename;
-}
 
 /**
  * Returns the base path for summaries directory.
@@ -246,5 +235,3 @@ export async function nextSummaryId(directory: string): Promise<string> {
 	return `S${lastNum + 1}`;
 }
 
-// suppress unused import warning
-void validateFilename;

@@ -34,13 +34,61 @@ interface InjectionCandidate {
 
 /**
  * Scores a context injection candidate based on recency, phase relevance, and agent fit.
+ * Returns an adjusted score: base score ± relevance boost for the current agent and phase.
  */
 function scoreCandidate(
 	candidate: InjectionCandidate,
-	_agentName: string,
-	_currentPhase: string | null,
+	agentName: string,
+	currentPhase: string | null,
 ): number {
-	return candidate.score;
+	let score = candidate.score;
+
+	// Agent-specific boosts: surface the most relevant context per role
+	switch (agentName) {
+		case 'editor_in_chief':
+			// Orchestrator needs full picture: boost retrospective and phase
+			if (candidate.tag === 'retrospective') score += 0.15;
+			if (candidate.tag === 'phase') score += 0.05;
+			break;
+		case 'writer':
+			// Writer needs clear task and editorial decisions
+			if (candidate.tag === 'task') score += 0.1;
+			if (candidate.tag === 'decisions') score += 0.1;
+			break;
+		case 'copy_editor':
+		case 'managing_editor':
+			// QA agents need the task spec to evaluate against
+			if (candidate.tag === 'task') score += 0.15;
+			// Suppress agent activity context (risk of self-verification bias)
+			if (candidate.tag === 'agent') score -= 0.2;
+			break;
+		case 'fact_checker':
+			// Fact-checker needs task and decisions (source guidance)
+			if (candidate.tag === 'task') score += 0.1;
+			if (candidate.tag === 'decisions') score += 0.05;
+			break;
+		case 'humanizer':
+			// Humanizer needs task context; retrospective adds noise
+			if (candidate.tag === 'task') score += 0.1;
+			if (candidate.tag === 'retrospective') score -= 0.1;
+			break;
+	}
+
+	// Phase-specific boosts: surface retrospective during revision phases
+	if (currentPhase) {
+		const phaseLC = currentPhase.toLowerCase();
+		if (
+			(phaseLC.includes('revision') || phaseLC.includes('review')) &&
+			candidate.tag === 'retrospective'
+		) {
+			score += 0.1;
+		}
+		if (phaseLC.includes('research') && candidate.tag === 'decisions') {
+			score -= 0.1; // Decisions not yet established in research phase
+		}
+	}
+
+	return score;
 }
 
 /**

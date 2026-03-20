@@ -240,8 +240,21 @@ export async function listAgentOutputs(
 				const text = await Bun.file(filePath).text();
 				const metaMatch = text.match(/^<!-- output-meta: (.+?) -->/);
 				if (metaMatch) {
-					const meta = JSON.parse(metaMatch[1]) as AgentOutputMetadata;
-					allMeta.push(meta);
+					try {
+						const parsed = JSON.parse(metaMatch[1]);
+						if (
+							parsed &&
+							typeof parsed.id === 'string' &&
+							typeof parsed.agentType === 'string' &&
+							typeof parsed.outputType === 'string' &&
+							typeof parsed.createdAt === 'string' &&
+							typeof parsed.sizeBytes === 'number'
+						) {
+							allMeta.push(parsed as AgentOutputMetadata);
+						}
+					} catch {
+						// Malformed metadata — skip
+					}
 				} else {
 					const stat = statSync(filePath);
 					allMeta.push({

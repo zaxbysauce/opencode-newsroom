@@ -271,8 +271,8 @@ export function advanceTaskState(
 	const currentIdx = TASK_WORKFLOW_ORDER.indexOf(session.taskWorkflow);
 	const nextIdx = TASK_WORKFLOW_ORDER.indexOf(nextState);
 
-	if (nextIdx <= currentIdx) {
-		// Cannot go backward or stay same
+	if (nextIdx !== currentIdx + 1) {
+		// Must advance exactly one step — skipping or reversing is rejected
 		session.violations.push(
 			`Invalid workflow transition: ${session.taskWorkflow} → ${nextState}`,
 		);

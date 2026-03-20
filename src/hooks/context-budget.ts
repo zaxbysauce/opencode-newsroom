@@ -182,23 +182,20 @@ export function createContextBudgetHandler(config: PluginConfig) {
 					// Iterate oldest to newest, remove matching priority
 					for (let i = 0; i < messages.length && currentTokens > targetTokens; i++) {
 						if (priorities[i] === priority) {
-							// Estimate tokens removed
+							// Estimate tokens before tombstoning
 							const msgTokens = messages[i].parts.reduce(
 								(sum, p) =>
 									sum + (p.type === 'text' && p.text ? estimateTokens(p.text) : 0),
 								0,
 							);
+							const TOMBSTONE = '[REMOVED: context reduction]';
 							// Replace with a tombstone rather than splicing to preserve array integrity
 							messages[i] = {
 								info: { role: messages[i].info.role },
-								parts: [
-									{
-										type: 'text',
-										text: '[REMOVED: context reduction]',
-									},
-								],
+								parts: [{ type: 'text', text: TOMBSTONE }],
 							};
-							currentTokens -= msgTokens;
+							// Subtract net tokens freed (original minus tombstone size)
+							currentTokens -= msgTokens - estimateTokens(TOMBSTONE);
 						}
 					}
 				}

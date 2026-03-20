@@ -123,7 +123,11 @@ export function createGuardrailsHooks(config: GuardrailsConfig): {
 				if (activeAgentName) {
 					// New agent — start a new invocation window
 					beginInvocation(input.sessionID, activeAgentName);
-					session = getAgentSession(input.sessionID)!;
+					session = getAgentSession(input.sessionID);
+					if (!session) {
+						warn(`Session lost after beginInvocation for ${input.sessionID}`);
+						return;
+					}
 				}
 			}
 
@@ -145,7 +149,7 @@ export function createGuardrailsHooks(config: GuardrailsConfig): {
 				!isAgentDelegation(input.tool)
 			) {
 				session.hardLimitHit = true;
-				session.violations?.push(
+				session.violations.push(
 					`Self-writing detected: editor_in_chief used ${input.tool} directly`,
 				);
 				throw new Error(

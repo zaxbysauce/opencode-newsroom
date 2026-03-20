@@ -234,6 +234,8 @@ describe("schema", () => {
 				max_duration_minutes: 90,
 				max_consecutive_errors: 8,
 				warning_threshold: 0.7,
+				loop_warning_threshold: 3,
+				loop_block_threshold: 5,
 			});
 		});
 

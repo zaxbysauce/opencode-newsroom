@@ -3,6 +3,7 @@ import { createAgents, getAgentConfigs } from './agents';
 import { createNewsroomCommandHandler } from './commands';
 import { loadPluginConfig } from './config';
 import { GuardrailsConfigSchema } from './config/schema';
+import { validateToolMap } from './config/constants';
 import {
 	composeHandlers,
 	createAgentActivityHooks,
@@ -14,8 +15,18 @@ import {
 	createSystemEnhancerHook,
 	safeHook,
 } from './hooks';
-import { detect_domains, extract_code_blocks, gitingest } from './tools';
-import { log } from './utils';
+import {
+	detect_domains,
+	extract_code_blocks,
+	gitingest,
+	createSavePlanTool,
+	createPhaseCompleteTool,
+	createUpdateTaskStatusTool,
+	createRetrieveSummaryTool,
+	createEvidenceCheckTool,
+	createPreCheckBatchTool,
+} from './tools';
+import { log, warn } from './utils';
 
 /**
  * OpenCode Newsroom Plugin
@@ -24,8 +35,10 @@ import { log } from './utils';
  * Hub-and-spoke architecture with:
  * - Editor-in-Chief as central orchestrator
  * - Dynamic SME consultation (serial)
- * - Content production with editorial review
- * - Iterative refinement with triage
+ * - Content production with tiered QA pipeline
+ * - Iterative refinement with pressure-immune QA agents
+ * - Knowledge base for lessons learned
+ * - Summary management for tool output compression
  */
 const OpenCodeNewsroom: Plugin = async (ctx) => {
 	const config = loadPluginConfig(ctx.directory);
@@ -46,6 +59,22 @@ const OpenCodeNewsroom: Plugin = async (ctx) => {
 	);
 	const guardrailsHooks = createGuardrailsHooks(guardrailsConfig);
 
+	// Validate tool map consistency at startup
+	const toolMapErrors = validateToolMap();
+	if (toolMapErrors.length > 0) {
+		for (const err of toolMapErrors) {
+			warn(`Tool map validation: ${err}`);
+		}
+	}
+
+	// Instantiate directory-bound tools
+	const savePlanTool = createSavePlanTool(ctx.directory);
+	const phaseCompleteTool = createPhaseCompleteTool(ctx.directory);
+	const updateTaskStatusTool = createUpdateTaskStatusTool(ctx.directory);
+	const retrieveSummaryTool = createRetrieveSummaryTool(ctx.directory);
+	const evidenceCheckTool = createEvidenceCheckTool(ctx.directory);
+	const preCheckBatchTool = createPreCheckBatchTool();
+
 	log('Plugin initialized', {
 		directory: ctx.directory,
 		maxIterations: config.max_iterations,
@@ -61,6 +90,9 @@ const OpenCodeNewsroom: Plugin = async (ctx) => {
 			agentActivity: config.hooks?.agent_activity !== false,
 			delegationTracker: config.hooks?.delegation_tracker === true,
 			guardrails: guardrailsConfig.enabled,
+			scoringInjection: config.hooks?.scoring_injection === true,
+			qualityGates: config.quality_gates?.enabled !== false,
+			knowledge: config.knowledge?.enabled !== false,
 		},
 	});
 
@@ -70,11 +102,17 @@ const OpenCodeNewsroom: Plugin = async (ctx) => {
 		// Register all agents
 		agent: agents,
 
-		// Register tools
+		// Register tools (static + directory-bound)
 		tool: {
 			detect_domains,
 			extract_code_blocks,
 			gitingest,
+			save_plan: savePlanTool,
+			phase_complete: phaseCompleteTool,
+			update_task_status: updateTaskStatusTool,
+			retrieve_summary: retrieveSummaryTool,
+			evidence_check: evidenceCheckTool,
+			pre_check_batch: preCheckBatchTool,
 		},
 
 		// Configure OpenCode - merge agents into config
@@ -98,6 +136,11 @@ const OpenCodeNewsroom: Plugin = async (ctx) => {
 			log('Config applied', {
 				agents: Object.keys(agents),
 				commands: ['newsroom'],
+				tools: [
+					'detect_domains', 'extract_code_blocks', 'gitingest',
+					'save_plan', 'phase_complete', 'update_task_status',
+					'retrieve_summary', 'evidence_check', 'pre_check_batch',
+				],
 			});
 		},
 

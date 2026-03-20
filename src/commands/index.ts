@@ -8,6 +8,7 @@ import { handleDiagnoseCommand } from './diagnose';
 import { handleEvidenceCommand } from './evidence';
 import { handleExportCommand } from './export';
 import { handleHistoryCommand } from './history';
+import { handleKnowledgeCommand } from './knowledge';
 import { handlePlanCommand } from './plan';
 import { handleResetCommand } from './reset';
 import { handleStatusCommand } from './status';
@@ -20,6 +21,7 @@ export { handleDiagnoseCommand } from './diagnose';
 export { handleEvidenceCommand } from './evidence';
 export { handleExportCommand } from './export';
 export { handleHistoryCommand } from './history';
+export { handleKnowledgeCommand } from './knowledge';
 export { handlePlanCommand } from './plan';
 export { handleResetCommand } from './reset';
 export { handleStatusCommand } from './status';
@@ -32,11 +34,16 @@ const HELP_TEXT = [
 	'- `/newsroom agents` — List registered agents',
 	'- `/newsroom history` — Show completed phases summary',
 	'- `/newsroom config` — Show current resolved configuration',
+	'- `/newsroom config doctor` — Validate configuration health',
 	'- `/newsroom evidence [taskId]` — Show evidence bundles',
 	'- `/newsroom archive [--dry-run]` — Archive old evidence bundles',
 	'- `/newsroom diagnose` — Run health check on newsroom state',
 	'- `/newsroom export` — Export plan and context as JSON',
 	'- `/newsroom reset --confirm` — Clear newsroom state files',
+	'- `/newsroom knowledge list` — List editorial knowledge entries',
+	'- `/newsroom knowledge quarantine <id> [reason]` — Quarantine a knowledge entry',
+	'- `/newsroom knowledge restore <id>` — Restore a quarantined entry',
+	'- `/newsroom knowledge migrate` — Migrate context.md notes to knowledge base',
 ].join('\n');
 
 /**
@@ -98,6 +105,9 @@ export function createNewsroomCommandHandler(
 				break;
 			case 'reset':
 				text = await handleResetCommand(directory, args);
+				break;
+			case 'knowledge':
+				text = await handleKnowledgeCommand(directory, args);
 				break;
 			default:
 				text = HELP_TEXT;

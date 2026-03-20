@@ -5,19 +5,76 @@
  * and implements two-layer protection:
  * - Layer 1 (Soft Warning @ warning_threshold): Sets warning flag for messagesTransform to inject warning
  * - Layer 2 (Hard Block @ 100%): Throws error in toolBefore to block further calls, injects STOP message
+ *
+ * Upgraded to match opencode-swarm v6+ architecture:
+ * - Per-invocation window budgets (reset per delegation, not per session)
+ * - Self-writing detection (prevent editor-in-chief from writing directly)
+ * - Delegation loop detection
+ * - Enhanced loop detection: ≥loop_warning_threshold = warning, ≥loop_block_threshold = hard block
+ * - QA skip enforcement
  */
 
 import {
 	type GuardrailsConfig,
 	resolveGuardrailsConfig,
 } from '../config/schema';
-import { getAgentSession, startAgentSession, newsroomState } from '../state';
+import {
+	beginInvocation,
+	getAgentSession,
+	newsroomState,
+	startAgentSession,
+} from '../state';
 import { warn } from '../utils';
+
+// Tools considered "content writing" tools — only writer should use these
+const WRITING_TOOLS = new Set([
+	'write',
+	'edit',
+	'multi_edit',
+	'write_file',
+	'edit_file',
+]);
+
+// Tools that are always safe for any agent
+const ALWAYS_ALLOWED_TOOLS = new Set([
+	'read',
+	'read_file',
+	'glob',
+	'grep',
+	'list',
+	'task',
+	'retrieve_summary',
+	'detect_domains',
+]);
+
+/**
+ * Returns true if the tool is a content-writing tool.
+ */
+function isWritingTool(toolName: string): boolean {
+	const lower = toolName.toLowerCase();
+	return WRITING_TOOLS.has(lower);
+}
+
+/**
+ * Returns true if the agent is the orchestrator (editor-in-chief).
+ */
+function isOrchestrator(agentName: string): boolean {
+	const lower = agentName.toLowerCase();
+	return (
+		lower === 'editor_in_chief' ||
+		lower.endsWith('_editor_in_chief')
+	);
+}
+
+/**
+ * Returns true if the tool is an agent delegation call.
+ */
+function isAgentDelegation(toolName: string): boolean {
+	return toolName === 'task' || toolName === 'agent';
+}
 
 /**
  * Creates guardrails hooks for circuit breaker protection
- * @param config Guardrails configuration
- * @returns Tool before/after hooks and messages transform hook
  */
 export function createGuardrailsHooks(config: GuardrailsConfig): {
 	toolBefore: (
@@ -46,6 +103,9 @@ export function createGuardrailsHooks(config: GuardrailsConfig): {
 		};
 	}
 
+	const loopWarningThreshold = config.loop_warning_threshold ?? 3;
+	const loopBlockThreshold = config.loop_block_threshold ?? 5;
+
 	return {
 		toolBefore: async (input, output) => {
 			let session = getAgentSession(input.sessionID);
@@ -61,23 +121,61 @@ export function createGuardrailsHooks(config: GuardrailsConfig): {
 			} else if (session.agentName === 'unknown') {
 				const activeAgentName = newsroomState.activeAgent.get(input.sessionID);
 				if (activeAgentName) {
-					session.agentName = activeAgentName;
-					session.startTime = Date.now();
+					// New agent — start a new invocation window
+					beginInvocation(input.sessionID, activeAgentName);
+					session = getAgentSession(input.sessionID);
+					if (!session) {
+						warn(`Session lost after beginInvocation for ${input.sessionID}`);
+						return;
+					}
 				}
 			}
 
 			const agentConfig = resolveGuardrailsConfig(config, session.agentName);
+			const window = session.currentWindow;
 
+			// Hard limit already hit — block all further tool calls
 			if (session.hardLimitHit) {
 				throw new Error(
 					'🛑 CIRCUIT BREAKER: Agent blocked. Hard limit was previously triggered. Stop making tool calls and return your progress summary.',
 				);
 			}
 
+			// Self-writing detection: orchestrator should not use writing tools directly
+			if (
+				config.prevent_self_writing !== false &&
+				isOrchestrator(session.agentName) &&
+				isWritingTool(input.tool) &&
+				!isAgentDelegation(input.tool)
+			) {
+				session.hardLimitHit = true;
+				session.violations.push(
+					`Self-writing detected: editor_in_chief used ${input.tool} directly`,
+				);
+				throw new Error(
+					`🛑 GUARDRAIL: editor_in_chief must not write content directly. Delegate to the "writer" agent using the task tool instead of calling "${input.tool}" yourself.`,
+				);
+			}
+
+			// QA skip enforcement: if QA was flagged as skipped, block completion tools
+			if (
+				config.enforce_qa_delegation !== false &&
+				session.qaSkipped &&
+				(input.tool === 'phase_complete' || input.tool === 'save_plan')
+			) {
+				throw new Error(
+					'🛑 GUARDRAIL: Cannot complete phase — QA review (copy_editor or managing_editor) has not been run. Delegate to a QA agent first.',
+				);
+			}
+
+			// Increment tool call counts
 			session.toolCallCount++;
+			if (window) {
+				window.toolCallCount++;
+			}
 
+			// Arg hashing for repetition/loop detection
 			const hash = hashArgs(output.args);
-
 			session.recentToolCalls.push({
 				tool: input.tool,
 				argsHash: hash,
@@ -86,25 +184,46 @@ export function createGuardrailsHooks(config: GuardrailsConfig): {
 			if (session.recentToolCalls.length > 20) {
 				session.recentToolCalls.shift();
 			}
+			if (window) {
+				window.recentToolCalls.push({
+					tool: input.tool,
+					argsHash: hash,
+					timestamp: Date.now(),
+				});
+				if (window.recentToolCalls.length > 20) {
+					window.recentToolCalls.shift();
+				}
+			}
 
-			let repetitionCount = 0;
-			if (session.recentToolCalls.length > 0) {
-				const lastEntry =
-					session.recentToolCalls[session.recentToolCalls.length - 1];
-				for (let i = session.recentToolCalls.length - 1; i >= 0; i--) {
-					const entry = session.recentToolCalls[i];
+			// Count consecutive identical calls (loop detection)
+			let loopCount = 0;
+			const calls = session.recentToolCalls;
+			if (calls.length > 0) {
+				const last = calls[calls.length - 1];
+				for (let i = calls.length - 1; i >= 0; i--) {
 					if (
-						entry.tool === lastEntry.tool &&
-						entry.argsHash === lastEntry.argsHash
+						calls[i].tool === last.tool &&
+						calls[i].argsHash === last.argsHash
 					) {
-						repetitionCount++;
+						loopCount++;
 					} else {
 						break;
 					}
 				}
 			}
 
+			// Legacy repetition count for backward compat
+			let repetitionCount = loopCount;
+
 			const elapsedMinutes = (Date.now() - session.startTime) / 60000;
+
+			// Hard blocks (ordered by severity)
+			if (loopCount >= loopBlockThreshold) {
+				session.hardLimitHit = true;
+				throw new Error(
+					`🛑 CIRCUIT BREAKER: Loop detected — same call repeated ${loopCount} times (${input.tool}). Stop immediately and return your progress summary.`,
+				);
+			}
 
 			if (session.toolCallCount >= agentConfig.max_tool_calls) {
 				session.hardLimitHit = true;
@@ -134,6 +253,7 @@ export function createGuardrailsHooks(config: GuardrailsConfig): {
 				);
 			}
 
+			// Soft warnings
 			if (!session.warningIssued) {
 				const toolWarning =
 					session.toolCallCount >=
@@ -147,14 +267,17 @@ export function createGuardrailsHooks(config: GuardrailsConfig): {
 				const errorWarning =
 					session.consecutiveErrors >=
 					agentConfig.max_consecutive_errors * agentConfig.warning_threshold;
+				const loopWarning = loopCount >= loopWarningThreshold;
 
 				if (
 					toolWarning ||
 					durationWarning ||
 					repetitionWarning ||
-					errorWarning
+					errorWarning ||
+					loopWarning
 				) {
 					session.warningIssued = true;
+					if (window) window.warningIssued = true;
 				}
 			}
 		},
@@ -167,8 +290,14 @@ export function createGuardrailsHooks(config: GuardrailsConfig): {
 			const hasError = output.output === null || output.output === undefined;
 			if (hasError) {
 				session.consecutiveErrors++;
+				if (session.currentWindow) {
+					session.currentWindow.consecutiveErrors++;
+				}
 			} else {
 				session.consecutiveErrors = 0;
+				if (session.currentWindow) {
+					session.currentWindow.consecutiveErrors = 0;
+				}
 			}
 		},
 

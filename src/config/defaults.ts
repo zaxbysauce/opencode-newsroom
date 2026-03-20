@@ -21,12 +21,18 @@ export const DEFAULT_CONFIG: PluginConfig = {
 		max_repetitions: 10,
 		max_consecutive_errors: 5,
 		warning_threshold: 0.5,
+		loop_warning_threshold: 3,
+		loop_block_threshold: 5,
+		prevent_self_writing: true,
+		enforce_qa_delegation: true,
 		profiles: {
 			editor_in_chief: {
 				max_tool_calls: 600,
 				max_duration_minutes: 90,
 				max_consecutive_errors: 8,
 				warning_threshold: 0.7,
+				loop_warning_threshold: 3,
+				loop_block_threshold: 5,
 			},
 		},
 	},

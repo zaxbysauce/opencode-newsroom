@@ -1,6 +1,6 @@
 {
   "name": "opencode-newsroom",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Multi-agent writing swarm plugin for OpenCode - newsroom editorial pipeline with AI-detection avoidance",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
